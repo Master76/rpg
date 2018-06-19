@@ -6,6 +6,7 @@ let random = require('./random'),
 
 // default configurations
 const defaultLen = 8;
+const defaultLoop = 1;
 const weight = [
     normal, normal, normal, normal,
     normal, normal, normal, normal,
@@ -15,11 +16,14 @@ const weight = [
 
 let [
     length = defaultLen,
-    seed = Date.now()
-] = process.argv.slice(2).map(v => {
+    seed = Date.now(),
+    recur = defaultLoop
+] = process.argv.slice(2).map((v, i) => {
     let rtn = Number(v);
-    if (isNaN(rtn))
+    if (isNaN(rtn)) {
+        if (i != 1) throw new TypeError('Malformed command line arguments.')
         rtn = strhash(v);
+    }
     return rtn;
 });
 
@@ -28,28 +32,36 @@ if (length < 8) {
     throw new RangeError('Length of the password must be longer than 8.')
 }
 
-// initialize
-let sln = new Array(length);
-let pwd = new Array(length);
-random.srand(seed);
+let password;
+while (recur--) {
 
-// ensure there exists at least one uppercase or special character
-(function () {
-    let ui = random.rand() % length;
-    let si = random.rand() % (length - 1);
-    if (ui == si) si++;
-    sln[ui] = upper;
-    sln[si] = special;
-})();
+    // initialize
+    let sln = new Array(length);
+    let pwd = new Array(length);
+    random.srand(seed);
 
-// plan for other empty entries
-(function () {
-    for (let i = 0; i < length; i++) {
-        if (sln[i] == null)
-            sln[i] = weight[random.rand() % weight.length];
-        pwd[i] = sln[i]();
-    }
-})();
+    // ensure there exists at least one uppercase or special character
+    (function () {
+        let ui = random.rand() % length;
+        let si = random.rand() % (length - 1);
+        if (ui == si) si++;
+        sln[ui] = upper;
+        sln[si] = special;
+    })();
 
-console.log('Password:', pwd.join(''));
+    // plan for other empty entries
+    (function () {
+        for (let i = 0; i < length; i++) {
+            if (sln[i] == null)
+                sln[i] = weight[random.rand() % weight.length];
+            pwd[i] = sln[i]();
+        }
+    })();
+
+    password = pwd.join('');
+    if (recur != 0) 
+        seed = strhash(password);
+}
+
+console.log('Password:', password);
 console.log('Seed:', seed);
