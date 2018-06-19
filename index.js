@@ -25,7 +25,7 @@ let [
 
 // validate
 if (length < 8) {
-    throw new RangeError('Length for the password must be longer than 8.')
+    throw new RangeError('Length of the password must be longer than 8.')
 }
 
 // initialize
@@ -51,4 +51,5 @@ random.srand(seed);
     }
 })();
 
-console.log(pwd.join(''));
+console.log('Password:', pwd.join(''));
+console.log('Seed:', seed);
