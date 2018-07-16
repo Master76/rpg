@@ -1,5 +1,5 @@
 # rpg
-Random password generator
+Random password generator, which generates passwords with at least 1 uppercase, 1 special character.
 
 # usage
 
